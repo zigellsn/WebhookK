@@ -22,10 +22,31 @@ import io.ktor.client.request.url
 import io.ktor.client.response.HttpResponse
 import kotlinx.coroutines.flow.flow
 import java.net.URI
+import java.util.*
 
+
+/**
+ * 'Webhook' is defined by a topic name and a list of URIs
+ * @param topic Name of the webhook
+ * @param uris List of URIs
+ */
+data class Webhook(val topic: String, val uris: MutableList<URI> = mutableListOf())
+
+/**
+ * 'WebhookK' is the central entry point for webhook processing
+ *
+ * @param client HttpClient
+ * @param dataAccess DataAccess object
+ */
 class WebhookK(private val client: HttpClient, private val dataAccess: DataAccess = MemoryDataAccess()) {
 
-    fun add(topic: String, uri: URI) {
+    /**
+     * Adds a receiving URI to a webhook. If the webhook does not exist it is created.
+     *
+     * @param topic Name of the Webhook
+     * @param uri URI to be removed
+     */
+    suspend fun add(topic: String, uri: URI) {
         val webhook = dataAccess.get(topic)
         if (webhook == null) {
             val newWebhook = Webhook(topic)
@@ -37,22 +58,50 @@ class WebhookK(private val client: HttpClient, private val dataAccess: DataAcces
         }
     }
 
-    fun remove(topic: String, uri: URI) {
-        val webhook = dataAccess.get(topic)
-        webhook?.uris?.remove(uri)
-        if (webhook?.uris?.count() == 0) {
+    /**
+     * Removes a receiving URI from a webhook. If the webhook is empty it is removed, too.
+     *
+     * @param topic Name of the webhook
+     * @param uri URI to be removed
+     */
+    suspend fun remove(topic: String, uri: URI) {
+        //TODO: Exception
+        val webhook = dataAccess.get(topic) ?: throw Exception()
+        webhook.uris.remove(uri)
+        if (webhook.uris.count() == 0) {
             dataAccess.remove(webhook)
         }
     }
 
+    /**
+     * Gets all URIs from a webhook.
+     *
+     * @param topic Name of the webhook
+     * @throws Exception
+     */
+    suspend fun getUris(topic: String): List<URI> {
+        //TODO: Exception
+        val webhook = dataAccess.get(topic) ?: throw Exception()
+        return Collections.unmodifiableList(webhook.uris)
+    }
+
+    /**
+     * Triggers the webhooks
+     *
+     * @param topic Name of the webhook
+     * @param callBody Request body content
+     * @param callHeader Request header content
+     * @param client HttpClient
+     */
     suspend fun trigger(
         topic: String,
         callBody: Any,
         callHeader: List<Pair<String, List<String>>>,
         client: HttpClient = this.client
     ) = flow {
-        val webhook = dataAccess.get(topic)
-        webhook?.uris?.forEach {
+        //TODO: Exception
+        val webhook = dataAccess.get(topic) ?: throw Exception()
+        webhook.uris.forEach {
             emit(client.post<HttpResponse> {
                 url(it.toString())
                 for (h in callHeader) {

@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.lang.AssertionError
 import java.net.URI
 
 class WebhookKTest {
@@ -46,14 +47,20 @@ class WebhookKTest {
         }
 
         val webhook = WebhookK(client)
-        webhook.add("topic", URI.create("http://www.anonym.de"))
-
+        webhook.add("topic", URI.create("http://www.anonym.de/"))
         webhook.trigger("topic", TextContent("success", ContentType.Text.Plain), listOf("c" to listOf("d", "e")), client)
             .collect {
                 val s = it.readText()
                 assertEquals("TextContent[text/plain] \"success\"", s)
             }
         client.close()
+        assertEquals(1, webhook.getUris("topic").count())
         webhook.remove("topic", URI.create("http://www.anonym.de/"))
+        try {
+            webhook.getUris("topic").count()
+        } catch (e: Exception) {
+            assert(true)
+        }
+        assert(true)
     }
 }

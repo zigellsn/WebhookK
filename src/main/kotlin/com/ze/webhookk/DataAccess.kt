@@ -19,43 +19,68 @@ package com.ze.webhookk
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import java.nio.file.Files
 import java.nio.file.Path
 
+/**
+ * Interface for DataAccess
+ */
 interface DataAccess {
-    fun getAll(): MutableMap<String, Webhook>
-    fun get(topic: String): Webhook?
-    fun add(webhook: Webhook)
-    fun remove(webhook: Webhook)
-    fun save()
+
+    /**
+     * @return All registered webhooks
+     */
+    suspend fun getAll(): MutableMap<String, Webhook>
+
+    /**
+     * @param topic Name of the webhook
+     * @return The webhook
+     */
+    suspend fun get(topic: String): Webhook?
+
+    /**
+     * Adds a webhook
+     *
+     * @param webhook Webhook
+     */
+    suspend fun add(webhook: Webhook)
+
+    /**
+     * Removes a webhook
+     *
+     * @param webhook Webhook
+     */
+    suspend fun remove(webhook: Webhook)
 }
 
+/**
+ * 'MemoryDataAccess' stores all webhook data in memory
+ */
 open class MemoryDataAccess : DataAccess {
     protected open var webhooks: MutableMap<String, Webhook> = mutableMapOf()
 
-    override fun getAll(): MutableMap<String, Webhook> {
+    override suspend fun getAll(): MutableMap<String, Webhook> {
         return webhooks
     }
 
-    override fun get(topic: String): Webhook? {
+    override suspend fun get(topic: String): Webhook? {
         return webhooks[topic]
     }
 
-    override fun add(webhook: Webhook) {
+    override suspend fun add(webhook: Webhook) {
         webhooks[webhook.topic] = webhook
-        save()
     }
 
-    override fun remove(webhook: Webhook) {
+    override suspend fun remove(webhook: Webhook) {
         webhooks.remove(webhook.topic)
-        save()
-    }
-
-    override fun save() {
-
     }
 }
 
+/**
+ * 'FileDataAccess' stores all webhook data in a file
+ */
 class FileDataAccess(private val file: Path) : MemoryDataAccess() {
 
     override var webhooks =
@@ -68,10 +93,21 @@ class FileDataAccess(private val file: Path) : MemoryDataAccess() {
             mutableMapOf<String, Webhook>()
         }
 
-
-    override fun save() {
-        val gson = GsonBuilder().setPrettyPrinting().create()
-        val json = gson.toJson(webhooks)
-        Files.write(file, json.toByteArray())
+    override suspend fun add(webhook: Webhook) {
+        super.add(webhook)
+        save()
     }
+
+    override suspend fun remove(webhook: Webhook) {
+        super.remove(webhook)
+        save()
+    }
+
+    private suspend fun save() = coroutineScope {
+        val json = async { getJson() }
+        async { writeFile(json.await().toByteArray()) }
+    }.await()
+
+    private fun writeFile(byteArray: ByteArray) = Files.write(file, byteArray)
+    private fun getJson(): String = GsonBuilder().setPrettyPrinting().create().toJson(webhooks)
 }

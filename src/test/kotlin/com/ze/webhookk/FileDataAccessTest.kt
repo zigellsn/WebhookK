@@ -35,6 +35,10 @@ class FileDataAccessTest {
         val a = FileDataAccess(p)
         a.add(Webhook("test1"))
         a.add(Webhook("test2"))
-        assertEquals(a.get("test1"), a.get("test1"))
+
+        val nP = fileSystem.getPath("filetest")
+        val access = FileDataAccess(nP)
+        assertEquals(a.get("test1"), access.get("test1"))
+        assertEquals(a.get("test2"), access.get("test2"))
     }
 }
