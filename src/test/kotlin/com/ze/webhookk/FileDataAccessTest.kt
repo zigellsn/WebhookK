@@ -16,10 +16,12 @@
 
 package com.ze.webhookk
 
+import io.ktor.http.Url
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
+import java.nio.file.Files
 
 
 class FileDataAccessTest {
@@ -33,8 +35,8 @@ class FileDataAccessTest {
         val fileSystem = rule.fileSystem
         val p = fileSystem.getPath("filetest")
         val a = FileDataAccess(p)
-        a.add(Webhook("test1"))
-        a.add(Webhook("test2"))
+        a.add("test1", Url("a"))
+        a.add("test2", Url("b"))
 
         val nP = fileSystem.getPath("filetest")
         val access = FileDataAccess(nP)

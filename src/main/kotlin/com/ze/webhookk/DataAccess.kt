@@ -16,13 +16,21 @@
 
 package com.ze.webhookk
 
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.JsonParser
+import com.fasterxml.jackson.databind.DeserializationContext
+import com.fasterxml.jackson.databind.JsonDeserializer
+import com.fasterxml.jackson.databind.JsonSerializer
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.module.SimpleModule
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
+import io.ktor.http.Url
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import java.nio.file.Files
 import java.nio.file.Path
+
 
 /**
  * Interface for DataAccess
@@ -32,49 +40,114 @@ interface DataAccess {
     /**
      * @return All registered webhooks
      */
-    suspend fun getAll(): MutableMap<String, Webhook>
+    suspend fun getAll(): Map<String, List<Url>>
 
     /**
      * @param topic Name of the webhook
-     * @return The webhook
+     * @return Collection of URIs
      */
-    suspend fun get(topic: String): Webhook?
+    suspend fun get(topic: String): List<Url>
 
     /**
-     * Adds a webhook
+     * Adds a URI to a webhook
      *
-     * @param webhook Webhook
+     * @param topic Name of the webhook
+     * @param url URI
      */
-    suspend fun add(webhook: Webhook)
+    suspend fun add(topic: String, url: Url)
+
+    /**
+     * Adds a collection of URIs to a webhook
+     *
+     * @param topic Name of the webhook
+     * @param urls Collection of URIs
+     */
+    suspend fun addAll(topic: String, urls: Collection<Url>)
+
+    /**
+     * Removes a URI from a webhook
+     *
+     * @param topic Name of the webhook
+     */
+    suspend fun removeUrl(topic: String, url: Url)
+
+    /**
+     * Removes a collection of URIs from a webhook
+     *
+     * @param topic Name of the webhook
+     */
+    suspend fun removeAllUrl(topic: String, urls: Collection<Url>)
 
     /**
      * Removes a webhook
      *
-     * @param webhook Webhook
+     * @param topic Name of the webhook
      */
-    suspend fun remove(webhook: Webhook)
+    suspend fun removeTopic(topic: String)
+
+    /**
+     * Removes a collection of webhooks
+     *
+     * @param topics Collection of webhooks
+     */
+    suspend fun removeAllTopic(topics: Collection<String>)
 }
 
 /**
  * 'MemoryDataAccess' stores all webhook data in memory
  */
 open class MemoryDataAccess : DataAccess {
-    protected open var webhooks: MutableMap<String, Webhook> = mutableMapOf()
 
-    override suspend fun getAll(): MutableMap<String, Webhook> {
+    protected open var webhooks: MutableMap<String, MutableList<Url>> = mutableMapOf()
+
+    override suspend fun getAll(): Map<String, List<Url>> {
         return webhooks
     }
 
-    override suspend fun get(topic: String): Webhook? {
-        return webhooks[topic]
+    override suspend fun get(topic: String): List<Url> {
+        return webhooks[topic] ?: throw AssertionError("")
     }
 
-    override suspend fun add(webhook: Webhook) {
-        webhooks[webhook.topic] = webhook
+    override suspend fun addAll(topic: String, urls: Collection<Url>) {
+        if (!webhooks.containsKey(topic)) {
+            webhooks[topic] = urls.toMutableList()
+        } else {
+            webhooks[topic]?.addAll(urls)
+        }
     }
 
-    override suspend fun remove(webhook: Webhook) {
-        webhooks.remove(webhook.topic)
+    override suspend fun add(topic: String, url: Url) {
+        if (!webhooks.containsKey(topic)) {
+            webhooks[topic] = mutableListOf(url)
+        } else {
+            webhooks[topic]?.add(url)
+        }
+    }
+
+    override suspend fun removeUrl(topic: String, url: Url) {
+        if (webhooks.containsKey(topic)) {
+            webhooks[topic]?.remove(url)
+        } else {
+            throw AssertionError()
+        }
+    }
+
+    override suspend fun removeAllUrl(topic: String, urls: Collection<Url>) {
+        if (webhooks.containsKey(topic)) {
+            webhooks[topic]?.removeAll(urls)
+        } else {
+            throw AssertionError()
+        }
+    }
+
+    override suspend fun removeTopic(topic: String) {
+        webhooks.remove(topic)
+    }
+
+    override suspend fun removeAllTopic(topics: Collection<String>) {
+        for (topic in topics) {
+            webhooks.remove(topic)
+        }
     }
 }
 
@@ -83,23 +156,64 @@ open class MemoryDataAccess : DataAccess {
  */
 class FileDataAccess(private val file: Path) : MemoryDataAccess() {
 
+    inner class UrlSerializer : JsonSerializer<Url>() {
+        override fun serialize(value: Url?, gen: JsonGenerator?, serializers: SerializerProvider?) {
+            gen?.writeString(value.toString())
+        }
+    }
+
+    inner class UrlDeserializer : JsonDeserializer<Url>() {
+        override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): Url {
+            val url = ctxt?.readValue(p, String::class.java) ?: ""
+            return Url(url)
+        }
+    }
+
+    private val mapper = jacksonObjectMapper()
+
+    init {
+        val urlModule = SimpleModule("UrlModule")
+        urlModule.addSerializer(Url::class.java, UrlSerializer())
+        urlModule.addDeserializer(Url::class.java, UrlDeserializer())
+        mapper.registerModule(urlModule)
+    }
+
     override var webhooks =
         if (Files.exists(file)) {
             val bytes = Files.newBufferedReader(file)
-            val sType = object : TypeToken<MutableMap<String, Webhook>>() {}.type
-            Gson().fromJson(bytes, sType)
+            mapper.readValue(bytes)
         } else {
             Files.createFile(file)
-            mutableMapOf<String, Webhook>()
+            mutableMapOf<String, MutableList<Url>>()
         }
 
-    override suspend fun add(webhook: Webhook) {
-        super.add(webhook)
+    override suspend fun add(topic: String, url: Url) {
+        super.add(topic, url)
         save()
     }
 
-    override suspend fun remove(webhook: Webhook) {
-        super.remove(webhook)
+    override suspend fun addAll(topic: String, urls: Collection<Url>) {
+        super.addAll(topic, urls)
+        save()
+    }
+
+    override suspend fun removeAllUrl(topic: String, urls: Collection<Url>) {
+        super.removeAllUrl(topic, urls)
+        save()
+    }
+
+    override suspend fun removeUrl(topic: String, url: Url) {
+        super.removeUrl(topic, url)
+        save()
+    }
+
+    override suspend fun removeTopic(topic: String) {
+        super.removeTopic(topic)
+        save()
+    }
+
+    override suspend fun removeAllTopic(topics: Collection<String>) {
+        super.removeAllTopic(topics)
         save()
     }
 
@@ -109,5 +223,5 @@ class FileDataAccess(private val file: Path) : MemoryDataAccess() {
     }.await()
 
     private fun writeFile(byteArray: ByteArray) = Files.write(file, byteArray)
-    private fun getJson(): String = GsonBuilder().setPrettyPrinting().create().toJson(webhooks)
+    private fun getJson(): String = mapper.writeValueAsString(webhooks)
 }

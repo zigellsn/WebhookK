@@ -22,12 +22,11 @@ import io.ktor.client.engine.mock.respond
 import io.ktor.client.response.readText
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
+import io.ktor.http.Url
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.lang.AssertionError
-import java.net.URI
 
 class WebhookKTest {
     @Test
@@ -47,17 +46,22 @@ class WebhookKTest {
         }
 
         val webhook = WebhookK(client)
-        webhook.add("topic", URI.create("http://www.anonym.de/"))
-        webhook.trigger("topic", TextContent("success", ContentType.Text.Plain), listOf("c" to listOf("d", "e")), client)
+        webhook.add("topic", Url("http://www.anonym.de/"))
+        webhook.trigger(
+            "topic",
+            TextContent("success", ContentType.Text.Plain),
+            listOf("c" to listOf("d", "e")),
+            client = client
+        )
             .collect {
                 val s = it.readText()
                 assertEquals("TextContent[text/plain] \"success\"", s)
             }
         client.close()
-        assertEquals(1, webhook.getUris("topic").count())
-        webhook.remove("topic", URI.create("http://www.anonym.de/"))
+        assertEquals(1, webhook.getUrls("topic").count())
+        webhook.remove("topic", Url("http://www.anonym.de/"))
         try {
-            webhook.getUris("topic").count()
+            webhook.getUrls("topic").count()
         } catch (e: Exception) {
             assert(true)
         }

@@ -31,12 +31,12 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8", "1.3.50"))
-    implementation("io.ktor:ktor-client:1.2.5")
+    implementation("io.ktor:ktor-client:1.3.0-beta-1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
-    implementation("com.google.code.gson:gson:2.8.6")
+    implementation("io.ktor:ktor-jackson:1.3.0-beta-1")
     testImplementation("junit:junit:4.12")
-    testImplementation("io.ktor:ktor-client-mock:1.2.5")
-    testImplementation("io.ktor:ktor-client-mock-jvm:1.2.5")
+    testImplementation("io.ktor:ktor-client-mock:1.3.0-beta-1")
+    testImplementation("io.ktor:ktor-client-mock-jvm:1.3.0-beta-1")
     testImplementation("com.github.marschall:memoryfilesystem:2.1.0")
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2")
 }
