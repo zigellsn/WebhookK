@@ -20,10 +20,11 @@ import org.gradle.jvm.tasks.Jar
 plugins {
     kotlin("jvm") version "1.3.61"
     id("org.jetbrains.dokka") version "0.10.0"
+    maven
 }
 
-group = "com.ze.webhookk"
-version = "1.0-SNAPSHOT"
+group = "com.github.zigellsn"
+version = "0.1.0-alpha"
 
 repositories {
     jcenter()
