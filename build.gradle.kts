@@ -18,7 +18,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.3.50"
+    kotlin("jvm") version "1.3.61"
     id("org.jetbrains.dokka") version "0.10.0"
 }
 
@@ -30,7 +30,7 @@ repositories {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", "1.3.50"))
+    implementation(kotlin("stdlib-jdk8", "1.3.61"))
     implementation("io.ktor:ktor-client:1.3.0-beta-1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
     implementation("io.ktor:ktor-jackson:1.3.0-beta-1")
