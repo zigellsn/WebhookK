@@ -42,7 +42,7 @@ class WebhookK(private val client: HttpClient, private val dataAccess: DataAcces
      */
     suspend fun trigger(
         topic: String,
-        post: (url: Url) -> HttpResponse
+        post: suspend (url: Url) -> HttpResponse
     ) = flow {
         topics[topic]?.forEach {
             emit(post(it))

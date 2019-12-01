@@ -50,14 +50,12 @@ class WebhookKTest {
         webhook.trigger(
             "topic"
         ) {
-            runBlocking {
-                webhook.post(
-                    it,
-                    TextContent("success", ContentType.Text.Plain),
-                    listOf("c" to listOf("d", "e")),
-                    client = client
-                )
-            }
+            webhook.post(
+                it,
+                TextContent("success", ContentType.Text.Plain),
+                listOf("c" to listOf("d", "e")),
+                client = client
+            )
         }
             .collect {
                 val s = it.readText()
