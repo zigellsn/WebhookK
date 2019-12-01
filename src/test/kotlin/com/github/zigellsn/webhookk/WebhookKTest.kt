@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ze.webhookk
+package com.github.zigellsn.webhookk
 
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -46,22 +46,28 @@ class WebhookKTest {
         }
 
         val webhook = WebhookK(client)
-        webhook.add("topic", Url("http://www.anonym.de/"))
+        webhook.topics.add("topic", Url("http://www.anonym.de/"))
         webhook.trigger(
-            "topic",
-            TextContent("success", ContentType.Text.Plain),
-            listOf("c" to listOf("d", "e")),
-            client = client
-        )
+            "topic"
+        ) {
+            runBlocking {
+                webhook.post(
+                    it,
+                    TextContent("success", ContentType.Text.Plain),
+                    listOf("c" to listOf("d", "e")),
+                    client = client
+                )
+            }
+        }
             .collect {
                 val s = it.readText()
                 assertEquals("TextContent[text/plain] \"success\"", s)
             }
         client.close()
-        assertEquals(1, webhook.getUrls("topic").count())
-        webhook.remove("topic", Url("http://www.anonym.de/"))
+        assertEquals(1, webhook.topics["topic"]?.count())
+        webhook.topics.removeUrl("topic", Url("http://www.anonym.de/"))
         try {
-            webhook.getUrls("topic").count()
+            webhook.topics["topic"]?.count()
         } catch (e: Exception) {
             assert(true)
         }

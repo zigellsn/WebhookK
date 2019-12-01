@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package com.ze.webhookk
+package com.github.zigellsn.webhookk
 
 import io.ktor.http.Url
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
-import java.nio.file.Files
 
 
 class FileDataAccessTest {
@@ -31,16 +30,16 @@ class FileDataAccessTest {
     val rule = FileSystemRule()
 
     @Test
-    fun testSave() = runBlocking {
+    fun testSave(): Unit = runBlocking {
         val fileSystem = rule.fileSystem
         val p = fileSystem.getPath("filetest")
         val a = FileDataAccess(p)
-        a.add("test1", Url("a"))
-        a.add("test2", Url("b"))
-
+        a.webhooks.add("test1", Url("a"))
+        a.webhooks.add("test2", Url("b"))
+        a.persist()
         val nP = fileSystem.getPath("filetest")
         val access = FileDataAccess(nP)
-        assertEquals(a.get("test1"), access.get("test1"))
-        assertEquals(a.get("test2"), access.get("test2"))
+        assertEquals(a.webhooks["test1"], access.webhooks["test1"])
+        assertEquals(a.webhooks["test2"], access.webhooks["test2"])
     }
 }

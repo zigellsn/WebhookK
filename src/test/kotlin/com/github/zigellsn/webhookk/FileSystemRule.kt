@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.ze.webhookk
+package com.github.zigellsn.webhookk
 
 import com.github.marschall.memoryfilesystem.MemoryFileSystemBuilder
 import org.junit.rules.TestRule
