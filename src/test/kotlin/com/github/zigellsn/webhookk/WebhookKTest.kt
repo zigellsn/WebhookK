@@ -20,6 +20,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.response.readText
+import io.ktor.client.statement.readText
 import io.ktor.content.TextContent
 import io.ktor.http.ContentType
 import io.ktor.http.Url
@@ -58,7 +59,7 @@ class WebhookKTest {
             )
         }
             .collect {
-                val s = it.readText()
+                val s = it.execute().readText()
                 assertEquals("TextContent[text/plain] \"success\"", s)
             }
         client.close()

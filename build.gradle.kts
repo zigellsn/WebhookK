@@ -24,7 +24,7 @@ plugins {
 }
 
 group = "com.github.zigellsn"
-version = "0.1.3-alpha"
+version = "0.1.4-alpha"
 
 repositories {
     jcenter()
@@ -32,14 +32,14 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8", "1.3.61"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.2")
-    implementation("io.ktor:ktor-client:1.3.0-beta-1")
-    implementation("io.ktor:ktor-jackson:1.3.0-beta-1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.3")
+    implementation("io.ktor:ktor-client:1.3.1")
+    implementation("io.ktor:ktor-jackson:1.3.1")
     testImplementation("junit:junit:4.12")
-    testImplementation("io.ktor:ktor-client-mock:1.3.0-beta-1")
-    testImplementation("io.ktor:ktor-client-mock-jvm:1.3.0-beta-1")
+    testImplementation("io.ktor:ktor-client-mock:1.3.1")
+    testImplementation("io.ktor:ktor-client-mock-jvm:1.3.1")
     testImplementation("com.github.marschall:memoryfilesystem:2.1.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.3")
 }
 
 tasks.withType<KotlinCompile> {

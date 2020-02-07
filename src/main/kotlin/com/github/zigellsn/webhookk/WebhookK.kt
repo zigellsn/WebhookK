@@ -19,7 +19,7 @@ package com.github.zigellsn.webhookk
 import io.ktor.client.HttpClient
 import io.ktor.client.request.post
 import io.ktor.client.request.url
-import io.ktor.client.response.HttpResponse
+import io.ktor.client.statement.HttpStatement
 import io.ktor.http.Url
 import kotlinx.coroutines.flow.flow
 
@@ -42,7 +42,7 @@ class WebhookK(private val client: HttpClient, private val dataAccess: DataAcces
      */
     suspend fun trigger(
         topic: String,
-        post: suspend (url: Url) -> HttpResponse
+        post: suspend (url: Url) -> HttpStatement
     ) = flow {
         topics[topic]?.forEach {
             emit(post(it))
@@ -61,7 +61,7 @@ class WebhookK(private val client: HttpClient, private val dataAccess: DataAcces
         callBody: Any,
         callHeader: List<Pair<String, List<String>>>,
         client: HttpClient = this.client
-    ): HttpResponse {
+    ): HttpStatement {
         return client.post {
             url(url)
             for (h in callHeader) {
