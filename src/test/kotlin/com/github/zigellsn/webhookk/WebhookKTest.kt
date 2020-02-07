@@ -56,10 +56,10 @@ class WebhookKTest {
                 TextContent("success", ContentType.Text.Plain),
                 listOf("c" to listOf("d", "e")),
                 client = client
-            )
+            ).execute()
         }
             .collect {
-                val s = it.execute().readText()
+                val s = it.readText()
                 assertEquals("TextContent[text/plain] \"success\"", s)
             }
         client.close()
