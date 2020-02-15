@@ -24,7 +24,7 @@ plugins {
 }
 
 group = "com.github.zigellsn"
-version = "0.1.5-alpha"
+version = "0.1.6-alpha"
 
 repositories {
     jcenter()

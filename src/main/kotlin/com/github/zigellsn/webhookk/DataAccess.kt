@@ -54,7 +54,8 @@ fun MutableMap<String, MutableList<Url>>.add(topic: String, url: Url) {
     if (!this.containsKey(topic)) {
         this[topic] = mutableListOf(url)
     } else {
-        this[topic]?.add(url)
+        if (!(this[topic]?.contains(url) ?: return))
+            this[topic]?.add(url)
     }
 }
 
