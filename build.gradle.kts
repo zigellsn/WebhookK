@@ -18,28 +18,28 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.3.70"
+    kotlin("jvm") version "1.3.71"
     id("org.jetbrains.dokka") version "0.10.1"
     maven
 }
 
 group = "com.github.zigellsn"
-version = "0.1.7-alpha"
+version = "0.1.0-beta1"
 
 repositories {
     jcenter()
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", "1.3.70"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.4")
-    implementation("io.ktor:ktor-client:1.3.1")
-    implementation("io.ktor:ktor-jackson:1.3.1")
+    implementation(kotlin("stdlib-jdk8", "1.3.71"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
+    implementation("io.ktor:ktor-client:1.3.2")
+    implementation("io.ktor:ktor-jackson:1.3.2")
     testImplementation("junit:junit:4.12")
-    testImplementation("io.ktor:ktor-client-mock:1.3.1")
-    testImplementation("io.ktor:ktor-client-mock-jvm:1.3.1")
+    testImplementation("io.ktor:ktor-client-mock:1.3.2")
+    testImplementation("io.ktor:ktor-client-mock-jvm:1.3.2")
     testImplementation("com.github.marschall:memoryfilesystem:2.1.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.4")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.5")
 }
 
 tasks.withType<KotlinCompile> {
