@@ -4,3 +4,42 @@
 [![Release](https://jitpack.io/v/zigellsn/WebhookK.svg)](https://jitpack.io/#zigellsn/WebhookK)
 
 A Kotlin webhook provider
+
+## Example
+```Kotlin
+import com.github.zigellsn.webhookk.WebhookK
+import com.github.zigellsn.webhookk.add
+import io.ktor.http.Url
+import io.ktor.http.content.TextContent
+
+// ...
+
+var webhooks = WebhookK(HttpClient(CIO) {
+    engine {
+        // CIO Configuration
+    }
+})
+
+// ...
+
+// Add urls to a topic
+webhooks.topics.add("topic_name", Url("http://localhost:8080/receiver/"))
+webhooks.topics.add("topic_name", Url("http://127.0.0.1:8080/receiver/"))
+
+// ...
+
+try {
+    webhooks.trigger("topic_name") { url ->
+        // Post message to receivers
+        webhooks.post(
+            url,
+            TextContent("Message for receiver", ContentType.Text.Plain)
+        ).execute()
+
+    }.collect { response ->  // Don't forget to collect!
+        // Handle responses
+    }
+} catch (e: ConnectException) {
+    // Handle exceptions
+}
+```

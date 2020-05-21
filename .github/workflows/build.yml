@@ -23,6 +23,12 @@ jobs:
         with:
           name: WebhookK
           path: build/libs
+      - name: Build Release Info
+        id: build_release_info
+        run: |
+          echo ::set-output name=version::${TAG_REF_NAME##*/v}
+        env:
+          TAG_REF_NAME: ${{ github.ref }}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
@@ -30,7 +36,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          release_name: Release version ${{steps.build_release_info.outputs.version}}
           draft: false
           prerelease: false
       - name: Upload Release Asset
@@ -39,7 +45,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-          asset_path: ./WebhookK.zip
-          asset_name: WebhookK.zip
-          asset_content_type: application/zip
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: build/libs/WebhookK-${{steps.build_release_info.outputs.version}}.jar
+          asset_name: WebhookK-${{steps.build_release_info.outputs.version}}.jar
+          asset_content_type: application/java-archive

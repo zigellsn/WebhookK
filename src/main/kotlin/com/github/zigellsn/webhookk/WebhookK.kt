@@ -60,7 +60,7 @@ class WebhookK(private val client: HttpClient, private val dataAccess: DataAcces
     suspend fun post(
         url: Url,
         callBody: Any,
-        callHeader: List<Pair<String, List<String>>>,
+        callHeader: List<Pair<String, List<String>>> = emptyList(),
         client: HttpClient = this.client
     ): HttpStatement {
         return client.post {

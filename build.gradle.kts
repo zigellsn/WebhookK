@@ -14,26 +14,27 @@
  * limitations under the License.
  */
 
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.71"
+    kotlin("jvm") version "1.3.72"
     id("org.jetbrains.dokka") version "0.10.1"
     maven
+    `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "0.1.7-beta01"
+version = "1.0.0-beta01"
 
 repositories {
     jcenter()
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", "1.3.71"))
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
-    implementation("io.ktor:ktor-client:1.3.2")
+    implementation(kotlin("stdlib-jdk8", "1.3.72"))
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.5")
+    api("io.ktor:ktor-client:1.3.2")
     implementation("io.ktor:ktor-jackson:1.3.2")
     testImplementation("junit:junit:4.12")
     testImplementation("io.ktor:ktor-client-mock:1.3.2")
