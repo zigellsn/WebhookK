@@ -22,6 +22,7 @@ import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.HttpStatement
 import io.ktor.http.Url
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 
@@ -31,9 +32,9 @@ import kotlinx.coroutines.flow.flow
  * @param client HttpClient
  * @param dataAccess DataAccess object
  */
-class WebhookK(private val client: HttpClient, private val dataAccess: DataAccess = MemoryDataAccess()) {
+public class WebhookK(private val client: HttpClient, private val dataAccess: DataAccess = MemoryDataAccess()) {
 
-    val topics = dataAccess.webhooks
+    public val topics: MutableMap<String, MutableList<Url>> = dataAccess.webhooks
 
     /**
      * Triggers the webhooks
@@ -41,10 +42,10 @@ class WebhookK(private val client: HttpClient, private val dataAccess: DataAcces
      * @param topic Name of the webhook
      * @param post Post-Method
      */
-    suspend fun trigger(
+    public suspend fun trigger(
         topic: String,
         post: suspend (url: Url) -> HttpResponse
-    ) = flow {
+    ): Flow<HttpResponse> = flow {
         topics[topic]?.forEach {
             emit(post(it))
         }
@@ -57,7 +58,7 @@ class WebhookK(private val client: HttpClient, private val dataAccess: DataAcces
      * @param callHeader Request header content
      * @param client HttpClient
      */
-    suspend fun post(
+    public suspend fun post(
         url: Url,
         callBody: Any,
         callHeader: List<Pair<String, List<String>>> = emptyList(),

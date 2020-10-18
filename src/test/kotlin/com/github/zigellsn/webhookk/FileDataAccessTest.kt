@@ -35,7 +35,7 @@ class FileDataAccessTest {
         val p = fileSystem.getPath("filetest")
         val a = FileDataAccess(p)
         a.webhooks.add("test1", Url("a"))
-        a.webhooks.add("test2", Url("b"))
+        a.webhooks.addAll("test2", listOf(Url("b"), Url("c")))
         a.persist()
         val nP = fileSystem.getPath("filetest")
         val access = FileDataAccess(nP)

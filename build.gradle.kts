@@ -18,43 +18,49 @@ import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.3.72"
-    id("org.jetbrains.dokka") version "0.10.1"
+    kotlin("jvm") version "1.4.10"
+    kotlin("plugin.serialization") version "1.4.10"
+    id("org.jetbrains.dokka") version "1.4.10"
     maven
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     jcenter()
 }
 
+kotlin {
+    explicitApi()
+    explicitApiWarning()
+}
+
 dependencies {
-    implementation(kotlin("stdlib-jdk8", "1.3.72"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7")
-    api("io.ktor:ktor-client:1.3.2")
-    implementation("io.ktor:ktor-jackson:1.3.2")
-    testImplementation("junit:junit:4.12")
-    testImplementation("io.ktor:ktor-client-mock:1.3.2")
-    testImplementation("io.ktor:ktor-client-mock-jvm:1.3.2")
+    implementation(kotlin("stdlib-jdk8", "1.4.10"))
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+    api("io.ktor:ktor-client:1.4.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0")
+
+    testImplementation("junit:junit:4.13")
+    testImplementation("io.ktor:ktor-client-mock:1.4.1")
+    testImplementation("io.ktor:ktor-client-mock-jvm:1.4.1")
     testImplementation("com.github.marschall:memoryfilesystem:2.1.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.7")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
 }
 
 tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-tasks.dokka {
-    outputFormat = "html"
-    outputDirectory = "$buildDir/javadoc"
+tasks.dokkaHtml.configure {
+    outputDirectory.set(buildDir.resolve("javadoc"))
 }
 
 val dokkaJar by tasks.creating(Jar::class) {
     group = JavaBasePlugin.DOCUMENTATION_GROUP
     description = "Assembles Kotlin docs with Dokka"
     archiveClassifier.set("javadoc")
-    from(tasks.dokka)
+    from(tasks.dokkaHtml)
 }

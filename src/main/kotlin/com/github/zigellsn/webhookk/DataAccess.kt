@@ -13,19 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.github.zigellsn.webhookk
 
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.JsonParser
-import com.fasterxml.jackson.databind.DeserializationContext
-import com.fasterxml.jackson.databind.JsonDeserializer
-import com.fasterxml.jackson.databind.JsonSerializer
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.module.SimpleModule
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
-import io.ktor.http.Url
+import io.ktor.http.*
+import kotlinx.coroutines.*
+import kotlinx.serialization.*
+import kotlinx.serialization.descriptors.PrimitiveKind
+import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
+import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encoding.Decoder
+import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.Json
 import java.nio.file.Files
 import java.nio.file.Path
 
@@ -36,7 +34,7 @@ import java.nio.file.Path
  * @param topic Name of the webhook
  * @param urls Collection of URIs
  */
-fun MutableMap<String, MutableList<Url>>.addAll(topic: String, urls: Collection<Url>) {
+public fun MutableMap<String, MutableList<Url>>.addAll(topic: String, urls: Collection<Url>) {
     if (!this.containsKey(topic)) {
         this[topic] = urls.toMutableList()
     } else {
@@ -50,7 +48,7 @@ fun MutableMap<String, MutableList<Url>>.addAll(topic: String, urls: Collection<
  * @param topic Name of the webhook
  * @param url URI
  */
-fun MutableMap<String, MutableList<Url>>.add(topic: String, url: Url) {
+public fun MutableMap<String, MutableList<Url>>.add(topic: String, url: Url) {
     if (!this.containsKey(topic)) {
         this[topic] = mutableListOf(url)
     } else {
@@ -64,7 +62,7 @@ fun MutableMap<String, MutableList<Url>>.add(topic: String, url: Url) {
  *
  * @param topic Name of the webhook
  */
-fun MutableMap<String, MutableList<Url>>.removeUrl(topic: String, url: Url) {
+public fun MutableMap<String, MutableList<Url>>.removeUrl(topic: String, url: Url) {
     if (this.containsKey(topic)) {
         this[topic]?.remove(url)
     } else {
@@ -77,7 +75,7 @@ fun MutableMap<String, MutableList<Url>>.removeUrl(topic: String, url: Url) {
  *
  * @param topic Name of the webhook
  */
-fun MutableMap<String, MutableList<Url>>.removeAllUrl(topic: String, urls: Collection<Url>) {
+public fun MutableMap<String, MutableList<Url>>.removeAllUrl(topic: String, urls: Collection<Url>) {
     if (this.containsKey(topic)) {
         this[topic]?.removeAll(urls)
     } else {
@@ -90,7 +88,7 @@ fun MutableMap<String, MutableList<Url>>.removeAllUrl(topic: String, urls: Colle
  *
  * @param topic Name of the webhook
  */
-fun MutableMap<String, MutableList<Url>>.removeTopic(topic: String) {
+public fun MutableMap<String, MutableList<Url>>.removeTopic(topic: String) {
     this.remove(topic)
 }
 
@@ -99,7 +97,7 @@ fun MutableMap<String, MutableList<Url>>.removeTopic(topic: String) {
  *
  * @param topics Collection of webhooks
  */
-fun MutableMap<String, MutableList<Url>>.removeAllTopic(topics: Collection<String>) {
+public fun MutableMap<String, MutableList<Url>>.removeAllTopic(topics: Collection<String>) {
     for (topic in topics) {
         this.remove(topic)
     }
@@ -108,64 +106,60 @@ fun MutableMap<String, MutableList<Url>>.removeAllTopic(topics: Collection<Strin
 /**
  * Interface for DataAccess
  */
-interface DataAccess {
+public interface DataAccess {
     /**
      * Collection of Webhooks
      */
-    val webhooks: MutableMap<String, MutableList<Url>>
+    public val webhooks: MutableMap<String, MutableList<Url>>
+
     /**
      * Persist Webhooks if possible
      */
-    fun persist()
+    public suspend fun persist()
 }
 
 /**
  * 'MemoryDataAccess' stores all webhook data in memory
  */
-class MemoryDataAccess : DataAccess {
+public class MemoryDataAccess : DataAccess {
     override val webhooks: MutableMap<String, MutableList<Url>> = mutableMapOf()
-    override fun persist() {
-    }
+    override suspend fun persist() {}
 }
+
+private object UrlAsStringSerializer : KSerializer<Url> {
+    override val descriptor: SerialDescriptor =
+        PrimitiveSerialDescriptor("Url", PrimitiveKind.STRING)
+
+    override fun serialize(encoder: Encoder, value: Url) =
+        encoder.encodeString(value.toString())
+
+    override fun deserialize(decoder: Decoder): Url =
+        Url(decoder.decodeString())
+}
+
+@Serializable
+private data class DB(val topics: MutableMap<String, MutableList<@Serializable(with = UrlAsStringSerializer::class) Url>>)
 
 /**
  * 'FileDataAccess' stores all webhook data in a file
  */
-class FileDataAccess(private val file: Path) : DataAccess {
+public class FileDataAccess(private val file: Path) : DataAccess {
 
-    inner class UrlSerializer : JsonSerializer<Url>() {
-        override fun serialize(value: Url?, gen: JsonGenerator?, serializers: SerializerProvider?) {
-            gen?.writeString(value.toString())
-        }
-    }
-
-    inner class UrlDeserializer : JsonDeserializer<Url>() {
-        override fun deserialize(p: JsonParser?, ctxt: DeserializationContext?): Url {
-            val url = ctxt?.readValue(p, String::class.java) ?: ""
-            return Url(url)
-        }
-    }
-
-    private val mapper = jacksonObjectMapper()
+    public override val webhooks: MutableMap<String, MutableList<Url>>
 
     init {
-        val urlModule = SimpleModule("UrlModule")
-        urlModule.addSerializer(Url::class.java, UrlSerializer())
-        urlModule.addDeserializer(Url::class.java, UrlDeserializer())
-        mapper.registerModule(urlModule)
-    }
-
-    override val webhooks: MutableMap<String, MutableList<Url>> =
-        if (Files.exists(file)) {
-            val bytes = Files.newBufferedReader(file)
-            mapper.readValue(bytes)
+        webhooks = if (Files.exists(file)) {
+            val bytes = Files.newBufferedReader(file).readText()
+            Json.decodeFromString<DB>(bytes).topics
         } else {
-            Files.createFile(file)
             mutableMapOf()
         }
+    }
 
-    override fun persist() {
-        val json = mapper.writeValueAsString(webhooks)
-        Files.write(file, json.toByteArray())
+    override suspend fun persist(): Unit = withContext(Dispatchers.IO) {
+        val json = Json.encodeToString(DB(webhooks))
+        launch(Dispatchers.IO) {
+            Files.write(file, json.toByteArray())
+        }
     }
 }
