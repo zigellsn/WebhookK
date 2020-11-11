@@ -26,7 +26,7 @@ plugins {
 }
 
 group = "com.github.zigellsn"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     jcenter()
@@ -39,19 +39,19 @@ kotlin {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8", "1.4.10"))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.9")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.1")
     api("io.ktor:ktor-client:1.4.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
 
-    testImplementation("junit:junit:4.13")
+    testImplementation("junit:junit:4.13.1")
     testImplementation("io.ktor:ktor-client-mock:1.4.1")
     testImplementation("io.ktor:ktor-client-mock-jvm:1.4.1")
     testImplementation("com.github.marschall:memoryfilesystem:2.1.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.3.9")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.1")
 }
 
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "1.8"
+    kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
 }
 
 tasks.dokkaHtml.configure {
