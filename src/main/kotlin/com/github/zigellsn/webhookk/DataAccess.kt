@@ -16,11 +16,17 @@
 package com.github.zigellsn.webhookk
 
 import io.ktor.http.*
-import kotlinx.coroutines.*
-import kotlinx.serialization.*
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.Json
@@ -143,20 +149,17 @@ private data class DB(val topics: MutableMap<String, MutableList<@Serializable(w
 /**
  * 'FileDataAccess' stores all webhook data in a file
  */
-public class FileDataAccess(private val file: Path) : DataAccess {
+public class FileDataAccess(private val file: Path, private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO) :
+    DataAccess {
 
-    public override val webhooks: MutableMap<String, MutableList<Url>>
-
-    init {
-        webhooks = if (Files.exists(file)) {
-            val bytes = Files.newBufferedReader(file).readText()
-            Json.decodeFromString<DB>(bytes).topics
-        } else {
-            mutableMapOf()
-        }
+    public override val webhooks: MutableMap<String, MutableList<Url>> = if (Files.exists(file)) {
+        val bytes = Files.newBufferedReader(file).readText()
+        Json.decodeFromString<DB>(bytes).topics
+    } else {
+        mutableMapOf()
     }
 
-    override suspend fun persist(): Unit = withContext(Dispatchers.IO) {
+    override suspend fun persist(): Unit = withContext(ioDispatcher) {
         val json = Json.encodeToString(DB(webhooks))
         launch(Dispatchers.IO) {
             Files.write(file, json.toByteArray())

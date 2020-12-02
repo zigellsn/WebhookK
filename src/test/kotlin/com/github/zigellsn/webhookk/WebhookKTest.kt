@@ -25,13 +25,18 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
+import org.junit.Rule
 import org.junit.Test
 
 class WebhookKTest {
 
     @ExperimentalCoroutinesApi
+    @get:Rule
+    var mainCoroutineRule = MainCoroutineRule()
+
+    @ExperimentalCoroutinesApi
     @Test
-    fun testWebhook() = runBlockingTest {
+    fun testWebhook() = mainCoroutineRule.runBlockingTest {
         val client = HttpClient(MockEngine) {
             engine {
                 addHandler {
@@ -75,7 +80,7 @@ class WebhookKTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun testTopicOperations() = runBlockingTest {
+    fun testTopicOperations() = mainCoroutineRule.runBlockingTest {
         val client = HttpClient(MockEngine) {
             engine {
                 addHandler {

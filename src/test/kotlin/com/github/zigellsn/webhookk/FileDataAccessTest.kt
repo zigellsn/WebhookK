@@ -16,9 +16,10 @@
 
 package com.github.zigellsn.webhookk
 
-import io.ktor.http.Url
+import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -35,7 +36,7 @@ class FileDataAccessTest {
     fun testSave(): Unit = runBlocking {
         val fileSystem = rule.fileSystem
         val p = fileSystem.getPath("filetest")
-        val a = FileDataAccess(p)
+        val a = FileDataAccess(p, TestCoroutineDispatcher())
         a.webhooks.add("test1", Url("a"))
         a.webhooks.addAll("test2", listOf(Url("b"), Url("c")))
         a.persist()
