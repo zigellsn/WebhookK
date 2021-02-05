@@ -23,6 +23,7 @@ import io.ktor.content.*
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -36,7 +37,7 @@ class WebhookKTest {
 
     @ExperimentalCoroutinesApi
     @Test
-    fun testWebhook() = mainCoroutineRule.runBlockingTest {
+    fun testWebhook() = runBlocking {
         val client = HttpClient(MockEngine) {
             engine {
                 addHandler {
