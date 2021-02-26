@@ -19,6 +19,6 @@ rootProject.name = "WebhookK"
 pluginManagement {
     repositories {
         gradlePluginPortal()
-        jcenter()
+        mavenCentral()
     }
 }

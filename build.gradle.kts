@@ -16,22 +16,23 @@
 
 import org.gradle.jvm.tasks.Jar
 
-val kotlinVersion by extra ("1.4.30")
-val ktorVersion by extra ("1.5.1")
+val kotlinVersion by extra ("1.4.31")
+val ktorVersion by extra ("1.5.2")
+val coroutinesVersion by extra ("1.4.2")
 
 plugins {
-    kotlin("jvm") version "1.4.30"
-    kotlin("plugin.serialization") version "1.4.30"
+    kotlin("jvm") version "1.4.31"
+    kotlin("plugin.serialization") version "1.4.31"
     id("org.jetbrains.dokka") version "1.4.10"
     maven
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "1.0.5"
+version = "1.0.6"
 
 repositories {
-    jcenter()
+    mavenCentral()
 }
 
 kotlin {
@@ -41,15 +42,15 @@ kotlin {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8", kotlinVersion))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
     api("io.ktor:ktor-client:${ktorVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.0.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.1.0")
 
-    testImplementation("junit:junit:4.13.1")
+    testImplementation("junit:junit:4.13.2")
     testImplementation("io.ktor:ktor-client-mock:${ktorVersion}")
     testImplementation("io.ktor:ktor-client-mock-jvm:${ktorVersion}")
     testImplementation("com.github.marschall:memoryfilesystem:2.1.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.4.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${coroutinesVersion}")
 }
 
 tasks {
