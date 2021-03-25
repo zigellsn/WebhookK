@@ -35,11 +35,12 @@ try {
             url,
             TextContent("Message for receiver", ContentType.Text.Plain)
         ).execute()
-
-    }.collect { response ->  // Don't forget to collect!
-        // Handle responses
     }
 } catch (e: ConnectException) {
     // Handle exceptions
+}    
+
+webhooks.responses().collect { (topic, response) -> 
+    // Handle responses
 }
 ```

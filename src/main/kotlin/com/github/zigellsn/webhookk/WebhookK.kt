@@ -16,15 +16,23 @@
 
 package com.github.zigellsn.webhookk
 
-import io.ktor.client.HttpClient
-import io.ktor.client.request.post
-import io.ktor.client.request.url
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.HttpStatement
-import io.ktor.http.Url
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.asFlow
 
+/**
+ * WebhookResponse represents the response of a webhook trigger
+ *
+ * @param topic Name of the webhook
+ * @param response Content of the response
+ */
+public data class WebhookResponse(val topic: String, val response: HttpResponse)
 
 /**
  * 'WebhookK' is the central entry point for webhook processing
@@ -36,19 +44,39 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
 
     public val topics: MutableMap<String, MutableList<Url>> = dataAccess.webhooks
 
+    @ExperimentalCoroutinesApi
+    private val responses: BroadcastChannel<WebhookResponse> = BroadcastChannel(Channel.Factory.BUFFERED)
+
     /**
      * Triggers the webhooks
      *
      * @param topic Name of the webhook
+     * @param dispatcher Coroutine dispatcher
      * @param post Post-Method
      */
+    @Synchronized
+    @ExperimentalCoroutinesApi
     public suspend fun trigger(
         topic: String,
+        dispatcher: CoroutineDispatcher = Dispatchers.Default,
         post: suspend (url: Url) -> HttpResponse
-    ): Flow<HttpResponse> = flow {
+    ): Job = webhookScope.launch(dispatcher) {
         topics[topic]?.forEach {
-            emit(post(it))
+            val a = post(it)
+            responses.offer(WebhookResponse(topic, a))
         }
+    }
+
+    /**
+     * Receive the responses as Flow
+     *
+     * @return Flow of HttpResponses
+     */
+    @FlowPreview
+    @ExperimentalCoroutinesApi
+    @Synchronized
+    public fun responses(): Flow<WebhookResponse> {
+        return responses.asFlow()
     }
 
     /**
@@ -72,4 +100,14 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
             body = callBody
         }
     }
+
+    /**
+     * Closes the Webhook
+     */
+    public fun close() {
+        webhookJob.cancel()
+    }
 }
+
+private val webhookJob = SupervisorJob()
+private val webhookScope = CoroutineScope(webhookJob)

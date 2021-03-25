@@ -22,7 +22,9 @@ import io.ktor.client.statement.*
 import io.ktor.content.*
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
@@ -35,6 +37,7 @@ class WebhookKTest {
     @get:Rule
     var mainCoroutineRule = MainCoroutineRule()
 
+    @FlowPreview
     @ExperimentalCoroutinesApi
     @Test
     fun testWebhook() = runBlocking {
@@ -64,10 +67,12 @@ class WebhookKTest {
                 client = client
             ).execute()
         }
-            .collect {
-                val s = it.readText()
-                assertEquals("TextContent[text/plain] \"success\"", s)
-            }
+        webhook.responses().take(1).collect { (topic, response) ->
+            val s = response.readText()
+            assertEquals("TextContent[text/plain] \"success\"", s)
+            assertEquals("topic", topic)
+        }
+        webhook.close()
         client.close()
         assertEquals(1, webhook.topics["topic"]?.count())
         webhook.topics.removeUrl("topic", Url("http://www.anonym.de/"))

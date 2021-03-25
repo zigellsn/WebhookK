@@ -23,13 +23,13 @@ val coroutinesVersion by extra ("1.4.2")
 plugins {
     kotlin("jvm") version "1.4.31"
     kotlin("plugin.serialization") version "1.4.31"
-    id("org.jetbrains.dokka") version "1.4.10"
+    id("org.jetbrains.dokka") version "1.4.30"
     maven
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "1.0.6"
+version = "1.1.0-alpha01"
 
 repositories {
     mavenCentral()
