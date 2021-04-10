@@ -18,15 +18,15 @@ jobs:
           distribution: 'zulu'
           java-version: '8'
       - name: Build with Gradle
-        run: ./gradlew build && ./gradlew dokkaJar
-      - name: Upload artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: WebhookK
-          path: build/libs
+        run: ./gradlew build
       - name: Build Release Info
         id: build_release_info
         run: |
           echo ::set-output name=version::${TAG_REF_NAME##*/v}
         env:
           TAG_REF_NAME: ${{ github.ref }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: WebhookK-${{steps.build_release_info.outputs.version}}
+          path: build/libs
