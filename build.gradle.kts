@@ -16,23 +16,34 @@
 
 import org.gradle.jvm.tasks.Jar
 
-val kotlinVersion by extra ("1.4.31")
-val ktorVersion by extra ("1.5.2")
-val coroutinesVersion by extra ("1.4.2")
+val kotlinVersion by extra ("1.4.32")
+val ktorVersion by extra ("1.5.3")
+val coroutinesVersion by extra ("1.4.3")
 
 plugins {
-    kotlin("jvm") version "1.4.31"
-    kotlin("plugin.serialization") version "1.4.31"
+    kotlin("jvm") version "1.4.32"
+    kotlin("plugin.serialization") version "1.4.32"
     id("org.jetbrains.dokka") version "1.4.30"
-    maven
+    `maven-publish`
     `java-library`
 }
 
-group = "com.github.zigellsn"
-version = "1.1.0-alpha01"
+publishing {
+    publications {
+        create<MavenPublication>("maven") {
+            groupId = "com.github.zigellsn"
+            artifactId = "webhookk"
+            version = "1.1.0-beta01"
+
+            from(components["java"])
+        }
+    }
+}
 
 repositories {
     mavenCentral()
+    maven(url="https://dl.bintray.com/kotlin/dokka")
+    maven(url="https://dl.bintray.com/kotlin/kotlinx")
 }
 
 kotlin {

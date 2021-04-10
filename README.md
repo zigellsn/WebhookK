@@ -6,6 +6,23 @@
 A Kotlin webhook provider
 
 ## Example
+
+Add it to your build.gradle with:
+```gradle
+allprojects {
+    repositories {
+        maven { url "https://jitpack.io" }
+    }
+}
+```
+and:
+```gradle
+dependencies {
+    implementation 'com.github.zigellsn:webhookk:{latest version}'
+}
+```
+
+and use it like this:
 ```Kotlin
 import com.github.zigellsn.webhookk.WebhookK
 import com.github.zigellsn.webhookk.add
