@@ -38,14 +38,13 @@ class WebhookKTest {
     var mainCoroutineRule = MainCoroutineRule()
 
     @FlowPreview
-    @ExperimentalCoroutinesApi
     @Test
     fun testWebhook() = runBlocking {
         val client = HttpClient(MockEngine) {
             engine {
                 addHandler {
                     when (it.url.toString()) {
-                        "http://www.anonym.de/" -> {
+                        "https://www.anonym.de/" -> {
                             assertEquals("d", it.headers["c"])
                             respond(it.body.toString())
                         }
@@ -56,7 +55,7 @@ class WebhookKTest {
         }
 
         val webhook = WebhookK(client)
-        webhook.topics.add("topic", Url("http://www.anonym.de/"))
+        webhook.topics.add("topic", Url("https://www.anonym.de/"))
         webhook.trigger(
             "topic"
         ) {
@@ -75,7 +74,7 @@ class WebhookKTest {
         webhook.close()
         client.close()
         assertEquals(1, webhook.topics["topic"]?.count())
-        webhook.topics.removeUrl("topic", Url("http://www.anonym.de/"))
+        webhook.topics.removeUrl("topic", Url("https://www.anonym.de/"))
         try {
             webhook.topics["topic"]?.count()
         } catch (e: Exception) {
@@ -84,14 +83,14 @@ class WebhookKTest {
         assert(true)
     }
 
-    @ExperimentalCoroutinesApi
     @Test
+    @ExperimentalCoroutinesApi
     fun testTopicOperations() = mainCoroutineRule.runBlockingTest {
         val client = HttpClient(MockEngine) {
             engine {
                 addHandler {
                     when (it.url.toString()) {
-                        "http://www.anonym.de/" -> {
+                        "https://www.anonym.de/" -> {
                             assertEquals("d", it.headers["c"])
                             respond(it.body.toString())
                         }
@@ -102,22 +101,22 @@ class WebhookKTest {
         }
 
         val webhook = WebhookK(client)
-        webhook.topics.add("topic", Url("http://www.anonym.de/"))
+        webhook.topics.add("topic", Url("https://www.anonym.de/"))
         assertEquals(1, webhook.topics["topic"]?.count())
         assertEquals(1, webhook.topics.count())
         webhook.topics.addAll(
             "topic2",
-            listOf(Url("http://www.anonym.de/"), Url("http://www.anonym2.de/"), Url("http://www.anonym3.de/"))
+            listOf(Url("https://www.anonym.de/"), Url("https://www.anonym2.de/"), Url("https://www.anonym3.de/"))
         )
         assertEquals(3, webhook.topics["topic2"]?.count())
         assertEquals(2, webhook.topics.count())
-        webhook.topics.addAll("topic3", listOf(Url("http://www.anonym.de/"), Url("http://www.anonym2.de/")))
+        webhook.topics.addAll("topic3", listOf(Url("https://www.anonym.de/"), Url("https://www.anonym2.de/")))
         assertEquals(2, webhook.topics["topic3"]?.count())
         assertEquals(3, webhook.topics.count())
-        webhook.topics.removeUrl("topic2", Url("http://www.anonym.de/"))
+        webhook.topics.removeUrl("topic2", Url("https://www.anonym.de/"))
         assertEquals(2, webhook.topics["topic2"]?.count())
         assertEquals(3, webhook.topics.count())
-        webhook.topics.removeAllUrl("topic2", listOf(Url("http://www.anonym.de/"), Url("http://www.anonym3.de/")))
+        webhook.topics.removeAllUrl("topic2", listOf(Url("https://www.anonym.de/"), Url("https://www.anonym3.de/")))
         assertEquals(1, webhook.topics["topic2"]?.count())
         assertEquals(3, webhook.topics.count())
         webhook.topics.removeTopic("topic2")

@@ -21,10 +21,8 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.BroadcastChannel
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
 /**
  * WebhookResponse represents the response of a webhook trigger
@@ -44,8 +42,7 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
 
     public val topics: MutableMap<String, MutableList<Url>> = dataAccess.webhooks
 
-    @ExperimentalCoroutinesApi
-    private val responses: BroadcastChannel<WebhookResponse> = BroadcastChannel(Channel.Factory.BUFFERED)
+    private val responses: MutableSharedFlow<WebhookResponse> = MutableSharedFlow()
 
     /**
      * Triggers the webhooks
@@ -55,7 +52,6 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
      * @param post Post-Method
      */
     @Synchronized
-    @ExperimentalCoroutinesApi
     public suspend fun trigger(
         topic: String,
         dispatcher: CoroutineDispatcher = Dispatchers.Default,
@@ -63,7 +59,7 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
     ): Job = webhookScope.launch(dispatcher) {
         topics[topic]?.forEach {
             val a = post(it)
-            responses.offer(WebhookResponse(topic, a))
+            responses.emit(WebhookResponse(topic, a))
         }
     }
 
@@ -72,12 +68,8 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
      *
      * @return Flow of HttpResponses
      */
-    @FlowPreview
-    @ExperimentalCoroutinesApi
     @Synchronized
-    public fun responses(): Flow<WebhookResponse> {
-        return responses.asFlow()
-    }
+    public fun responses(): Flow<WebhookResponse> = responses
 
     /**
      * Triggers the webhooks
