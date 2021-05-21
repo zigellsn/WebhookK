@@ -18,7 +18,7 @@ import org.gradle.jvm.tasks.Jar
 
 val kotlinVersion by extra("1.5.0")
 val ktorVersion by extra("1.5.4")
-val coroutinesVersion by extra("1.5.0-RC")
+val coroutinesVersion by extra("1.5.0")
 
 plugins {
     kotlin("jvm") version "1.5.0"
@@ -29,7 +29,7 @@ plugins {
 }
 
 group = "com.github.zigellsn"
-version = "1.1.0-beta03"
+version = "1.1.0-rc01"
 
 repositories {
     mavenCentral()
@@ -50,7 +50,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8", kotlinVersion))
     api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
     api("io.ktor:ktor-client:${ktorVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
 
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.ktor:ktor-client-mock:${ktorVersion}")
