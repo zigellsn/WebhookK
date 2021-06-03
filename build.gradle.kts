@@ -16,20 +16,20 @@
 
 import org.gradle.jvm.tasks.Jar
 
-val kotlinVersion by extra("1.5.0")
-val ktorVersion by extra("1.5.4")
+val kotlinVersion by extra("1.5.10")
+val ktorVersion by extra("1.6.0")
 val coroutinesVersion by extra("1.5.0")
 
 plugins {
     kotlin("jvm") version "1.5.0"
-    kotlin("plugin.serialization") version "1.5.0"
+    kotlin("plugin.serialization") version "1.5.10"
     id("org.jetbrains.dokka") version "1.4.30"
     `maven-publish`
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "1.1.0-rc01"
+version = "1.1.0-rc02"
 
 repositories {
     mavenCentral()
