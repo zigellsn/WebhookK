@@ -51,7 +51,6 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
      * @param dispatcher Coroutine dispatcher
      * @param post Post-Method
      */
-    @Synchronized
     public suspend fun trigger(
         topic: String,
         dispatcher: CoroutineDispatcher = Dispatchers.Default,

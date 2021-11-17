@@ -16,20 +16,16 @@
 
 import org.gradle.jvm.tasks.Jar
 
-val kotlinVersion by extra("1.5.10")
-val ktorVersion by extra("1.6.0")
-val coroutinesVersion by extra("1.5.0")
-
 plugins {
-    kotlin("jvm") version "1.5.0"
-    kotlin("plugin.serialization") version "1.5.10"
-    id("org.jetbrains.dokka") version "1.4.30"
+    kotlin("jvm") version "1.6.0"
+    kotlin("plugin.serialization") version "1.6.0"
+    id("org.jetbrains.dokka") version "1.5.31"
     `maven-publish`
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "1.1.0-rc02"
+version = "1.1.0-rc03"
 
 repositories {
     mavenCentral()
@@ -47,24 +43,26 @@ java {
 }
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8", kotlinVersion))
-    api("org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutinesVersion}")
-    api("io.ktor:ktor-client:${ktorVersion}")
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
+    implementation(kotlin("stdlib-jdk8", libs.versions.kotlin.get()))
+    api(libs.kotlin.coroutine)
+    api(libs.ktor.client)
+    implementation(libs.kotlin.serialization)
 
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("io.ktor:ktor-client-mock:${ktorVersion}")
-    testImplementation("io.ktor:ktor-client-mock-jvm:${ktorVersion}")
-    testImplementation("com.github.marschall:memoryfilesystem:2.1.0")
-    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:${coroutinesVersion}")
+    testImplementation(libs.test.junit)
+    testImplementation(libs.test.ktor.mock)
+    testImplementation(libs.test.ktor.mockjvm)
+    testImplementation(libs.test.memoryfilesystem)
+    testImplementation(libs.test.kotlin.coroutine)
 }
 
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
+        // kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
+        // kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
     }
 }
 
