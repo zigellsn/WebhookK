@@ -39,8 +39,6 @@ class FileSystemRule : TestRule {
                     fileSystem.close()
                 }
             }
-
         }
     }
-
 }
