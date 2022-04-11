@@ -1,17 +1,17 @@
 [versions]
-kotlin = "1.6.10"
-coroutine = "1.6.0"
-ktor = "1.6.7"
-serialization = "1.3.1"
-junit = "4.13.2"
-memoryfilesystem = "2.2.0"
+kotlin = "1.6.20"
+coroutine = "1.6.1"
+ktor = "2.0.0"
+serialization = "1.3.2"
+memoryfilesystem = "2.3.0"
 
 [libraries]
 kotlin_coroutine = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine" }
 kotlin_serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "serialization" }
 ktor_client = { module = "io.ktor:ktor-client", version.ref = "ktor" }
+
 test_memoryfilesystem = { module = "com.github.marschall:memoryfilesystem", version.ref = "memoryfilesystem"}
-test_junit = { module = "junit:junit", version.ref = "junit" }
+test_kotlin = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 test_kotlin_coroutine = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutine" }
 test_ktor_mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor"}
 test_ktor_mockjvm = { module = "io.ktor:ktor-client-mock-jvm", version.ref = "ktor"}

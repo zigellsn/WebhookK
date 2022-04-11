@@ -31,5 +31,10 @@
       <option name="name" value="maven2" />
       <option name="url" value="https://dl.bintray.com/kotlin/kotlinx" />
     </remote-repository>
+    <remote-repository>
+      <option name="id" value="ktor-eap" />
+      <option name="name" value="ktor-eap" />
+      <option name="url" value="https://maven.pkg.jetbrains.space/public/p/ktor/eap" />
+    </remote-repository>
   </component>
 </project>

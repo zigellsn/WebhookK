@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Simon Zigelli
+ * Copyright 2019-2022 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,11 +38,39 @@ public data class WebhookResponse(val topic: String, val response: HttpResponse)
  * @param client HttpClient
  * @param dataAccess DataAccess object
  */
-public class WebhookK(private val client: HttpClient, private val dataAccess: DataAccess = MemoryDataAccess()) {
+public class WebhookK(public val client: HttpClient, private val dataAccess: DataAccess = MemoryDataAccess()) {
 
     public val topics: MutableMap<String, MutableList<Url>> = dataAccess.webhooks
 
     private val responses: MutableSharedFlow<WebhookResponse> = MutableSharedFlow()
+
+
+    /**
+     * WebhookPost represents a post request
+     *
+     * @param client HttpClient
+     */
+    public open class WebhookPost(public val client: HttpClient) {
+        /**
+         * Triggers the webhooks
+         *
+         * @param callBody Request body content
+         * @param callHeader Request header content
+         */
+        public suspend fun post(
+            url: Url,
+            callBody: Any,
+            callHeader: List<Pair<String, List<String>>> = emptyList(),
+        ): HttpResponse {
+            return client.post {
+                url(url)
+                for (h in callHeader) {
+                    headers.appendAll(h.first, h.second)
+                }
+                setBody(callBody)
+            }
+        }
+    }
 
     /**
      * Triggers the webhooks
@@ -54,11 +82,12 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
     public suspend fun trigger(
         topic: String,
         dispatcher: CoroutineDispatcher = Dispatchers.Default,
-        post: suspend (url: Url) -> HttpResponse
+        post: suspend WebhookPost.(url: Url) -> HttpResponse
     ): Job = webhookScope.launch(dispatcher) {
         topics[topic]?.forEach {
-            val a = post(it)
-            responses.emit(WebhookResponse(topic, a))
+            val postInst = WebhookPost(this@WebhookK.client)
+            val httpResponse = postInst.post(it)
+            responses.emit(WebhookResponse(topic, httpResponse))
         }
     }
 
@@ -69,28 +98,6 @@ public class WebhookK(private val client: HttpClient, private val dataAccess: Da
      */
     @Synchronized
     public fun responses(): Flow<WebhookResponse> = responses
-
-    /**
-     * Triggers the webhooks
-     *
-     * @param callBody Request body content
-     * @param callHeader Request header content
-     * @param client HttpClient
-     */
-    public suspend fun post(
-        url: Url,
-        callBody: Any,
-        callHeader: List<Pair<String, List<String>>> = emptyList(),
-        client: HttpClient = this.client
-    ): HttpStatement {
-        return client.post {
-            url(url)
-            for (h in callHeader) {
-                headers.appendAll(h.first, h.second)
-            }
-            body = callBody
-        }
-    }
 
     /**
      * Closes the Webhook

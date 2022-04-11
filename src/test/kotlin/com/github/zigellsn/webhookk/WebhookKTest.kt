@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Simon Zigelli
+ * Copyright 2019-2022 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -51,15 +51,14 @@ class WebhookKTest {
         webhook.trigger(
             "topic"
         ) {
-            webhook.post(
+            post(
                 it,
                 TextContent("success", ContentType.Text.Plain),
                 listOf("c" to listOf("d", "e")),
-                client = client
-            ).execute()
+            )
         }
         webhook.responses().take(1).collect { (topic, response) ->
-            val s = response.readText()
+            val s = response.bodyAsText()
             assertEquals("TextContent[text/plain] \"success\"", s)
             assertEquals("topic", topic)
         }
