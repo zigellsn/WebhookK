@@ -27,7 +27,7 @@ and use it like this:
 import com.github.zigellsn.webhookk.WebhookK
 import com.github.zigellsn.webhookk.add
 import io.ktor.http.Url
-import io.ktor.http.content.TextContent
+import io.ktor.content.TextContent
 
 // ...
 
