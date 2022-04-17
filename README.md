@@ -18,7 +18,7 @@ allprojects {
 and:
 ```gradle
 dependencies {
-    implementation 'com.github.zigellsn:webhookk:{latest version}'
+    implementation "com.github.zigellsn:webhookk:$latestWebhookKVersion"
 }
 ```
 
