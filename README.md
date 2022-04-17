@@ -31,7 +31,7 @@ import io.ktor.http.content.TextContent
 
 // ...
 
-var webhooks = WebhookK(HttpClient(CIO) {
+val webhooks = WebhookK(HttpClient(CIO) {
     engine {
         // CIO Configuration
     }
@@ -41,17 +41,17 @@ var webhooks = WebhookK(HttpClient(CIO) {
 
 // Add urls to a topic
 webhooks.topics.add("topic_name", Url("http://localhost:8080/receiver/"))
-webhooks.topics.add("topic_name", Url("http://127.0.0.1:8080/receiver/"))
+webhooks.topics.add("topic_name", Url("https://127.0.0.1:8080/receiver/"))
 
 // ...
 
 try {
     webhooks.trigger("topic_name") { url ->
         // Post message to receivers
-        webhooks.post(
+        post(
             url,
             TextContent("Message for receiver", ContentType.Text.Plain)
-        ).execute()
+        )
     }
 } catch (e: ConnectException) {
     // Handle exceptions
