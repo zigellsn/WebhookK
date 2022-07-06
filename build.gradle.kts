@@ -17,28 +17,20 @@
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.6.20"
-    kotlin("plugin.serialization") version "1.6.20"
-    id("org.jetbrains.dokka") version "1.6.10"
+    kotlin("jvm") version "1.7.0"
+    kotlin("plugin.serialization") version "1.7.0"
+    id("org.jetbrains.dokka") version "1.7.0"
     `maven-publish`
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "2.0.0"
+version = "2.0.1"
 
 repositories {
     mavenCentral()
     maven(url = "https://dl.bintray.com/kotlin/dokka")
     maven(url = "https://dl.bintray.com/kotlin/kotlinx")
-    maven {
-        url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
-        name = "ktor-eap"
-    }
-    maven {
-        url = uri("https://maven.pkg.jetbrains.space/public/p/ktor/eap")
-        name = "ktor-eap"
-    }
 }
 
 kotlin {
@@ -66,11 +58,9 @@ dependencies {
 tasks {
     compileKotlin {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
-        // kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
     }
     compileTestKotlin {
         kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
-        // kotlinOptions.freeCompilerArgs = listOf("-Xopt-in=kotlin.RequiresOptIn")
     }
 }
 

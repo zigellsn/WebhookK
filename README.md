@@ -61,3 +61,22 @@ webhooks.responses().collect { (topic, response) ->
     // Handle responses
 }
 ```
+
+To save the urls into a JSON file, instantiate the WebhookK class like this:
+
+```Kotlin
+// ...
+import java.io.File 
+import java.net.URI
+// ...
+
+// ...
+val webhooks = WebhookK(HttpClient(CIO) {
+    engine {
+        // CIO Configuration
+    }
+}, FileDataAccess(Path.of(URI("file:///C:/my_webhook_file.json"))))
+// ...
+```
+
+To implement an alternative means of data persistence, create a class that implements the interface `DataAccess`.  
