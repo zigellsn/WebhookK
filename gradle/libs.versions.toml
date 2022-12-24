@@ -1,9 +1,9 @@
 [versions]
-kotlin = "1.7.20"
+kotlin = "1.7.21"
 coroutine = "1.6.4"
-ktor = "2.1.2"
-serialization = "1.4.0"
-memoryfilesystem = "2.3.0"
+ktor = "2.2.1"
+serialization = "1.4.1"
+memoryfilesystem = "2.4.0"
 
 [libraries]
 kotlin_coroutine = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine" }

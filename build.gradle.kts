@@ -17,15 +17,15 @@
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.7.20"
-    kotlin("plugin.serialization") version "1.7.20"
-    id("org.jetbrains.dokka") version "1.7.10"
+    kotlin("jvm") version "1.7.21"
+    kotlin("plugin.serialization") version "1.7.21"
+    id("org.jetbrains.dokka") version "1.7.20"
     `maven-publish`
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "2.0.2"
+version = "2.0.3"
 
 repositories {
     mavenCentral()
