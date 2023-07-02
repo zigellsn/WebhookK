@@ -17,15 +17,15 @@
 import org.gradle.jvm.tasks.Jar
 
 plugins {
-    kotlin("jvm") version "1.8.0"
-    kotlin("plugin.serialization") version "1.8.0"
-    id("org.jetbrains.dokka") version "1.7.20"
+    kotlin("jvm") version "1.8.22"
+    kotlin("plugin.serialization") version "1.8.22"
+    id("org.jetbrains.dokka") version "1.8.20"
     `maven-publish`
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "2.0.4"
+version = "2.0.5"
 
 repositories {
     mavenCentral()
@@ -36,10 +36,14 @@ repositories {
 kotlin {
     explicitApi()
     explicitApiWarning()
+    jvmToolchain(8)
 }
 
 java {
     withSourcesJar()
+    toolchain {
+        languageVersion.set(JavaLanguageVersion.of(8))
+    }
 }
 
 dependencies {

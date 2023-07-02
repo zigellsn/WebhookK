@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-enableFeaturePreview("VERSION_CATALOGS")
-
 rootProject.name = "WebhookK"
 
 pluginManagement {
@@ -23,4 +21,8 @@ pluginManagement {
         gradlePluginPortal()
         mavenCentral()
     }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version ("0.5.0")
 }

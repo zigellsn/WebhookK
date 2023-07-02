@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import kotlin.test.assertNotNull
 
 class WebhookKTest {
 
@@ -47,6 +48,7 @@ class WebhookKTest {
         }
 
         val webhook = WebhookK(client)
+        assertNotNull(webhook.client)
         webhook.topics.add("topic", Url("https://www.anonym.de/"))
         webhook.trigger(
             "topic"
