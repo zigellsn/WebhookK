@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 Simon Zigelli
+ * Copyright 2019-2024 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,7 +80,7 @@ public fun MutableMap<String, MutableList<Url>>.removeUrl(topic: String, url: Ur
  */
 public fun MutableMap<String, MutableList<Url>>.removeAllUrl(topic: String, urls: Collection<Url>) {
     if (this.containsKey(topic)) {
-        this[topic]?.removeAll(urls)
+        this[topic]?.removeAll(urls.toSet())
     } else {
         throw AssertionError()
     }

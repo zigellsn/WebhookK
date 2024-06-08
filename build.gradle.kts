@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 Simon Zigelli
+ * Copyright 2019-2024 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,18 @@
  */
 
 import org.gradle.jvm.tasks.Jar
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version "1.8.22"
-    kotlin("plugin.serialization") version "1.8.22"
-    id("org.jetbrains.dokka") version "1.8.20"
+    kotlin("jvm") version "2.0.0"
+    kotlin("plugin.serialization") version "2.0.0"
+    alias(libs.plugins.dokka)
     `maven-publish`
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "2.0.5"
+version = "2.0.6"
 
 repositories {
     mavenCentral()
@@ -61,15 +62,19 @@ dependencies {
 
 tasks {
     compileKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
     compileTestKotlin {
-        kotlinOptions.jvmTarget = JavaVersion.VERSION_1_8.toString()
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_1_8)
+        }
     }
 }
 
 tasks.dokkaHtml.configure {
-    outputDirectory.set(buildDir.resolve("javadoc"))
+    outputDirectory.set(layout.buildDirectory.dir("javadoc"))
 }
 
 val dokkaJar by tasks.creating(Jar::class) {

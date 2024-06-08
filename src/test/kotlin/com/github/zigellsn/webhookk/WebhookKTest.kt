@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2023 Simon Zigelli
+ * Copyright 2019-2024 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@ import io.ktor.client.engine.mock.*
 import io.ktor.client.statement.*
 import io.ktor.content.*
 import io.ktor.http.*
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -30,7 +29,6 @@ import kotlin.test.assertNotNull
 
 class WebhookKTest {
 
-    @ExperimentalCoroutinesApi
     @Test
     fun testWebhook() = runTest {
         val client = HttpClient(MockEngine) {
@@ -38,7 +36,7 @@ class WebhookKTest {
                 addHandler {
                     when (it.url.toString()) {
                         "https://www.anonym.de/" -> {
-                            assertEquals("d", it.headers["c"])
+                            assertEquals("d", it.headers["Age"])
                             respond(it.body.toString())
                         }
                         else -> error("error")
@@ -56,7 +54,7 @@ class WebhookKTest {
             post(
                 it,
                 TextContent("success", ContentType.Text.Plain),
-                listOf("c" to listOf("d", "e")),
+                listOf("Age" to listOf("d", "e")),
             )
         }
         webhook.responses().take(1).collect { (topic, response) ->
@@ -77,14 +75,13 @@ class WebhookKTest {
     }
 
     @Test
-    @ExperimentalCoroutinesApi
     fun testTopicOperations() = runTest {
         val client = HttpClient(MockEngine) {
             engine {
                 addHandler {
                     when (it.url.toString()) {
                         "https://www.anonym.de/" -> {
-                            assertEquals("d", it.headers["c"])
+                            assertEquals("d", it.headers["Age"])
                             respond(it.body.toString())
                         }
                         else -> error("error")
