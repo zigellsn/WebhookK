@@ -1,9 +1,10 @@
 [versions]
-kotlin = "1.8.22"
-coroutine = "1.7.1"
-ktor = "2.3.1"
-serialization = "1.5.1"
-memoryfilesystem = "2.6.1"
+kotlin = "2.0.0"
+coroutine = "1.8.1"
+ktor = "2.3.11"
+serialization = "1.7.0"
+memoryfilesystem = "2.8.0"
+dokka = "1.9.20"
 
 [libraries]
 kotlin_coroutine = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine" }
@@ -15,3 +16,6 @@ test_kotlin = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 test_kotlin_coroutine = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutine" }
 test_ktor_mock = { module = "io.ktor:ktor-client-mock", version.ref = "ktor"}
 test_ktor_mockjvm = { module = "io.ktor:ktor-client-mock-jvm", version.ref = "ktor"}
+
+[plugins]
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
