@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2024 Simon Zigelli
+ * Copyright 2019-2045 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,15 +18,15 @@ import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version "2.0.0"
-    kotlin("plugin.serialization") version "2.0.0"
+    kotlin("jvm") version "2.2.10"
+    kotlin("plugin.serialization") version "2.2.10"
     alias(libs.plugins.dokka)
     `maven-publish`
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "2.0.6"
+version = "2.0.7"
 
 repositories {
     mavenCentral()
