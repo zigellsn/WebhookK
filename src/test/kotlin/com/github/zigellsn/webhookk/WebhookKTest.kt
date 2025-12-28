@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2045 Simon Zigelli
+ * Copyright 2019-2026 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,9 +18,9 @@ package com.github.zigellsn.webhookk
 
 import io.ktor.client.*
 import io.ktor.client.engine.mock.*
-import io.ktor.client.statement.*
 import io.ktor.content.*
 import io.ktor.http.*
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -39,6 +39,7 @@ class WebhookKTest {
                             assertEquals("d", it.headers["Age"])
                             respond(it.body.toString())
                         }
+
                         else -> error("error")
                     }
                 }
@@ -48,6 +49,18 @@ class WebhookKTest {
         val webhook = WebhookK(client)
         assertNotNull(webhook.client)
         webhook.topics.add("topic", Url("https://www.anonym.de/"))
+
+        val responseJob = async {
+            webhook.responses().take(1).collect {
+                when (it) {
+                    is WebhookHttpResponse -> {
+                        assertEquals("TextContent[text/plain] \"success\"", it.response)
+                        assertEquals("topic", it.topic)
+                    }
+                }
+            }
+        }
+
         webhook.trigger(
             "topic"
         ) {
@@ -57,21 +70,14 @@ class WebhookKTest {
                 listOf("Age" to listOf("d", "e")),
             )
         }
-        webhook.responses().take(1).collect { (topic, response) ->
-            val s = response.bodyAsText()
-            assertEquals("TextContent[text/plain] \"success\"", s)
-            assertEquals("topic", topic)
-        }
+
+        responseJob.await()
+
         webhook.close()
         client.close()
         assertEquals(1, webhook.topics["topic"]?.count())
         webhook.topics.removeUrl("topic", Url("https://www.anonym.de/"))
-        try {
-            webhook.topics["topic"]?.count()
-        } catch (e: Exception) {
-            assert(true)
-        }
-        assert(true)
+        assertEquals(0, webhook.topics["topic"]?.count() ?: 0)
     }
 
     @Test
@@ -84,6 +90,7 @@ class WebhookKTest {
                             assertEquals("d", it.headers["Age"])
                             respond(it.body.toString())
                         }
+
                         else -> error("error")
                     }
                 }

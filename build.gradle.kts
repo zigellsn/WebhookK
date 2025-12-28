@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2045 Simon Zigelli
+ * Copyright 2019-2025 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-import org.gradle.jvm.tasks.Jar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    kotlin("jvm") version "2.2.10"
-    kotlin("plugin.serialization") version "2.2.10"
-    alias(libs.plugins.dokka)
+    kotlin("jvm") version "2.2.21"
+    kotlin("plugin.serialization") version "2.2.21"
+    id("org.jetbrains.dokka") version "2.1.0"
+    id("org.jetbrains.dokka-javadoc") version "2.1.0"
     `maven-publish`
     `java-library`
 }
 
 group = "com.github.zigellsn"
-version = "2.0.7"
+version = "3.0.0"
 
 repositories {
     mavenCentral()
-    maven(url = "https://dl.bintray.com/kotlin/dokka")
-    maven(url = "https://dl.bintray.com/kotlin/kotlinx")
 }
 
 kotlin {
@@ -73,25 +71,28 @@ tasks {
     }
 }
 
-tasks.dokkaHtml.configure {
-    outputDirectory.set(layout.buildDirectory.dir("javadoc"))
+val dokkaJavadocJar by tasks.registering(Jar::class) {
+    description = "A Javadoc JAR containing Dokka Javadoc"
+    from(tasks.dokkaGeneratePublicationJavadoc)
+    archiveClassifier.set("javadoc")
 }
 
-val dokkaJar by tasks.creating(Jar::class) {
-    group = JavaBasePlugin.DOCUMENTATION_GROUP
-    description = "Assembles Kotlin docs with Dokka"
-    archiveClassifier.set("javadoc")
-    from(tasks.dokkaHtml)
+val dokkaHtmlJar by tasks.registering(Jar::class) {
+    description = "A HTML Documentation JAR containing Dokka HTML"
+    from(tasks.dokkaGeneratePublicationHtml)
+    archiveClassifier.set("html-doc")
 }
 
 tasks.build.configure {
-    dependsOn(dokkaJar)
+    dependsOn(dokkaJavadocJar, dokkaHtmlJar)
 }
 
 publishing {
     publications {
-        create<MavenPublication>("maven") {
-            artifact(dokkaJar)
+        register<MavenPublication>("library") {
+            from(components["java"])
+            artifact(dokkaJavadocJar)
+            artifact(dokkaHtmlJar)
             pom {
                 name.set("WebhookK")
                 description.set("A Kotlin webhook provider")
@@ -115,7 +116,6 @@ publishing {
                     url.set("https://github.com/zigellsn/WebhookK/")
                 }
             }
-            from(components["java"])
         }
     }
 }

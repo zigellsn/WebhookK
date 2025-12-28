@@ -26,6 +26,8 @@ and use it like this:
 ```Kotlin
 import com.github.zigellsn.webhookk.WebhookK
 import com.github.zigellsn.webhookk.add
+import com.github.zigellsn.webhookk.WebhookHttpResponse
+import com.github.zigellsn.webhookk.WebhookError
 import io.ktor.http.Url
 import io.ktor.content.TextContent
 
@@ -45,21 +47,24 @@ webhooks.topics.add("topic_name", Url("https://127.0.0.1:8080/receiver/"))
 
 // ...
 
-try {
-    webhooks.trigger("topic_name") { url ->
-        // Post message to receivers
-        post(
-            url,
-            TextContent("Message for receiver", ContentType.Text.Plain)
-        )
+val collectorJob = launch {
+    webhooks.responses().collect {
+        // Handle responses
+        when (it) {
+            is WebhookHttpResponse -> println("Received: ${it.topic} -> ${it.response}")
+            is WebhookError -> println("Error: ${it.exception}")
+        } 
     }
-} catch (e: ConnectException) {
-    // Handle exceptions
-}    
-
-webhooks.responses().collect { (topic, response) -> 
-    // Handle responses
 }
+
+webhooks.trigger("topic_name") { url ->
+    // Post message to receivers
+    post(
+        url,
+        TextContent("Message for receiver", ContentType.Text.Plain)
+    )
+}
+
 ```
 
 To save the urls into a JSON file, instantiate the WebhookK class like this:

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2045 Simon Zigelli
+ * Copyright 2019-2026 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -37,11 +37,13 @@ class FileDataAccessTest {
         val fileSystem = rule.fileSystem
         val p = fileSystem.getPath("filetest")
         val a = FileDataAccess(p, UnconfinedTestDispatcher())
+        a.init()
         a.webhooks.add("test1", Url("a"))
         a.webhooks.addAll("test2", listOf(Url("b"), Url("c")))
         a.persist()
         val nP = fileSystem.getPath("filetest")
         val access = FileDataAccess(nP)
+        access.init()
         assertEquals(a.webhooks["test1"], access.webhooks["test1"])
         assertEquals(a.webhooks["test2"], access.webhooks["test2"])
     }

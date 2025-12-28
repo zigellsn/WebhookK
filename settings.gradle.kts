@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2045 Simon Zigelli
+ * Copyright 2019-2026 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,5 +24,5 @@ pluginManagement {
 }
 
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version ("0.8.0")
+    id("org.gradle.toolchains.foojay-resolver-convention") version ("1.0.0")
 }

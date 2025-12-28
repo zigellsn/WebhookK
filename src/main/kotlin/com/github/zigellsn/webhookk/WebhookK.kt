@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2045 Simon Zigelli
+ * Copyright 2019-2026 Simon Zigelli
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,6 +23,11 @@ import io.ktor.http.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import java.util.concurrent.CopyOnWriteArrayList
+
+public interface WebhookResponse {
+    public val topic: String
+}
 
 /**
  * WebhookResponse represents the response of a webhook trigger
@@ -30,7 +35,17 @@ import kotlinx.coroutines.flow.MutableSharedFlow
  * @param topic Name of the webhook
  * @param response Content of the response
  */
-public data class WebhookResponse(val topic: String, val response: HttpResponse)
+public data class WebhookHttpResponse(
+    override val topic: String,
+    val response: String,
+    val status: HttpStatusCode,
+    val headers: Headers
+) : WebhookResponse
+
+
+public data class WebhookError(override val topic: String, val exception: Exception) : WebhookResponse
+
+public typealias Topics = MutableMap<String, CopyOnWriteArrayList<Url>>
 
 /**
  * 'WebhookK' is the central entry point for webhook processing
@@ -40,7 +55,11 @@ public data class WebhookResponse(val topic: String, val response: HttpResponse)
  */
 public class WebhookK(public val client: HttpClient, private val dataAccess: DataAccess = MemoryDataAccess()) {
 
-    public val topics: MutableMap<String, MutableList<Url>> = dataAccess.webhooks
+    private val webhookJob = SupervisorJob()
+
+    private val webhookScope = CoroutineScope(webhookJob)
+
+    public val topics: Topics = dataAccess.webhooks
 
     private val responses: MutableSharedFlow<WebhookResponse> = MutableSharedFlow()
 
@@ -79,15 +98,28 @@ public class WebhookK(public val client: HttpClient, private val dataAccess: Dat
      * @param dispatcher Coroutine dispatcher
      * @param post Post-Method
      */
-    public suspend fun trigger(
+    public fun trigger(
         topic: String,
         dispatcher: CoroutineDispatcher = Dispatchers.Default,
         post: suspend WebhookPost.(url: Url) -> HttpResponse
     ): Job = webhookScope.launch(dispatcher) {
-        topics[topic]?.forEach {
-            val postInst = WebhookPost(this@WebhookK.client)
-            val httpResponse = postInst.post(it)
-            responses.emit(WebhookResponse(topic, httpResponse))
+        val postInst = WebhookPost(this@WebhookK.client)
+        topics[topic]?.toList()?.forEach {
+            launch {
+                try {
+                    val httpResponse = postInst.post(it)
+                    responses.emit(
+                        WebhookHttpResponse(
+                            topic, httpResponse.bodyAsText(),
+                            httpResponse.status, httpResponse.headers
+                        )
+                    )
+                } catch (e: CancellationException) {
+                    throw e
+                } catch (e: Exception) {
+                    responses.emit(WebhookError(topic, e))
+                }
+            }
         }
     }
 
@@ -96,7 +128,6 @@ public class WebhookK(public val client: HttpClient, private val dataAccess: Dat
      *
      * @return Flow of HttpResponses
      */
-    @Synchronized
     public fun responses(): Flow<WebhookResponse> = responses
 
     /**
@@ -106,6 +137,3 @@ public class WebhookK(public val client: HttpClient, private val dataAccess: Dat
         webhookJob.cancel()
     }
 }
-
-private val webhookJob = SupervisorJob()
-private val webhookScope = CoroutineScope(webhookJob)
