@@ -41,7 +41,7 @@ kotlin {
 java {
     withSourcesJar()
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(8))
+        languageVersion.set(JavaLanguageVersion.of(17))
     }
 }
 
@@ -61,12 +61,12 @@ dependencies {
 tasks {
     compileKotlin {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
     compileTestKotlin {
         compilerOptions {
-            jvmTarget.set(JvmTarget.JVM_1_8)
+            jvmTarget.set(JvmTarget.JVM_17)
         }
     }
 }
