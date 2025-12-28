@@ -26,7 +26,7 @@ plugins {
 }
 
 group = "com.github.zigellsn"
-version = "3.0.1"
+version = "3.0.3"
 
 repositories {
     mavenCentral()
